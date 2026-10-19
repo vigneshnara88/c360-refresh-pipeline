@@ -8,9 +8,23 @@ The pipeline uses a question registry to identify relevant fields, selects new o
 
 ## Why this workflow
 
+A recurring survey dashboard needs a consistent answer to a practical question: when another quarter of responses arrives, what needs to be recomputed, and what can be retained? Source files, question wording, response coding and reporting periods can change independently. Keeping that knowledge in one analyst's memory makes each refresh harder to repeat and hand over.
+
+The question registry provides a shared description of the fields to collect and how they contribute to reporting. Ingestion, scoring, aggregation and presentation then follow that configuration through separate stages. This makes the repository useful as a reference for future refresh work: the transformation steps and update rules are explicit, rather than embedded in a one-off manual export.
+
 A full rebuild can repeat expensive ingestion and aggregation even when only one survey period has changed. The refresh workflow records file paths, modification times and sizes in a manifest, then selects new or changed files for processing. Quarterly, annual and custom entry points control the refresh scope. A full rebuild remains available when definitions or source histories change.
 
 The expensive legacy respondent-level export is optional and disabled by default for routine updates. These choices are intended to save runtime; no benchmark speedup is claimed.
+
+## How a refresh works
+
+1. **Define the scope.** Choose a quarterly, annual or custom update and load the paths, weights and output settings in `00_config.R`.
+2. **Resolve the questions and files.** Read the question registry, discover the source files and compare their metadata with the retained manifest. Registry checks make missing or changed question mappings visible before aggregation.
+3. **Prepare responses.** Match source fields to the registry and reshape the selected responses into a common long format. Shared helpers handle parsing and scoring rules.
+4. **Build reporting measures.** Assign reporting periods, calculate configured weighted aggregates and construct demographic cuts. A weighted measure lets responses contribute according to the supplied survey weights; its interpretation still depends on those weights and the survey design.
+5. **Update the baseline.** Combine refreshed periods with the retained dashboard baseline and format the exports for downstream use. Run summaries and logs record the selected files and processing decisions.
+
+For example, a future quarterly refresh could process newly delivered quarter files and update the corresponding reporting periods while retaining the existing history. If a scoring definition changes, the appropriate response may instead be a rebuild of the affected history so that periods remain comparable. The scripts expose both decisions through configuration.
 
 ## Code map
 
