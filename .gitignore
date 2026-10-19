@@ -1,0 +1,16 @@
+data/
+outputs/
+*.csv
+*.xlsx
+*.xls
+*.sav
+*.dta
+*.parquet
+*.rds
+*.RData
+*.Rhistory
+*.pdf
+*.docx
+.env
+.env.*
+.Rproj.user/
